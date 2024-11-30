@@ -7,7 +7,6 @@ from time import sleep
 #       that triggered this kprove event. The user ID is held in the lowest 32bits of the 64-bit value
 #       that gets returned( the top 32-bits hold the group ID, but that part is masked out.
 
-
 program = r"""
 BPF_HASH(counter_table);
 
