@@ -6,8 +6,11 @@ program = r"""
 BPF_PROG_ARRAY(syscall, 300);   // BCC provides a BPF_PROG_ARRAY macro for easily defining maps of type
                                 // BPF_MAP_TYPE_PROG_ARRAY. I have called the map syscall and allowed for 300 entries.
 
-int hello(struct bpf_raw_tracepoint_args *ctx) { // the context is passed from the sys_enter syscall
-    int opcode = ctx->args[1];   // the raw tracepoint arguments include the opcode identifying which syscall is being made.
+// int hello(struct bpf_raw_tracepoint_args *ctx) { // the context is passed from the sys_enter syscall 
+// we are going to replace hello function using a direct way of raw_trace_point attachment
+// Further info in:: https://github.com/iovisor/bcc/blob/master/docs/reference_guide.md#7-raw-tracepoints
+RAW_TRACEPOINT_PROBE(sys_enter) { 
+    int opcode = ctx->args[1];  
     syscall.call(ctx, opcode);
     bpf_trace_printk("Another syscall: %d", opcode); // If the  tailcall succeed, this is not reachable.
     return 0;
@@ -42,7 +45,8 @@ int ignore_opcode(void *ctx) { // another tail call program, but it's a detail t
 """
 
 b = BPF(text=program) # Compiles the program code
-b.attach_raw_tracepoint(tp="sys_enter", fn_name="hello") # attach the hello func to the sys_enter raw tracepoint syscall.
+#Remove this function because we are using a direct way to attach sys_enter syscall to a RAW_TRACE_POINT
+#b.attach_raw_tracepoint(tp="sys_enter", fn_name="hello") # attach the hello func to the sys_enter raw tracepoint syscall.
                                                             # It gets it whenever any syuscall is made.
 
 # Pay attention to BPF.RAW_TRACEPOINT and attach_raw_tracepoint. The use
