@@ -8,7 +8,7 @@ struct user_msg_t {
    char message[12];
 };
 
-BPF_HASH(config, u32, struct user_msg_t);
+BPF_HASH(config, u32, struct user_msg_t); // create a hash table called config. It will hold values of type user_msg_t indexed by keys of type u32
 
 BPF_PERF_OUTPUT(output); 
 
